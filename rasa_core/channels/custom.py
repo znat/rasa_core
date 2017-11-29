@@ -61,3 +61,28 @@ class CustomInput(HttpInputComponent):
             return "success"
 
         return custom_webhook
+
+
+class DirectResponseInput(HttpInputComponent):
+    """A simple input channel that directly responds to the message."""
+
+    def blueprint(self, on_new_message):
+        custom_webhook = Blueprint('custom_webhook', __name__)
+
+        @custom_webhook.route("/", methods=['GET'])
+        def health():
+            return jsonify({"status": "ok"})
+
+        @custom_webhook.route("/webhook", methods=['POST'])
+        def receive():
+            from rasa_core.channels.direct import CollectingOutputChannel
+
+            payload = request.json
+            sender_id = payload.get("sender", None)
+            text = payload.get("message", None)
+            out = CollectingOutputChannel()
+            on_new_message(UserMessage(text, out, sender_id))
+            responses = [m for _, m in out.messages]
+            return jsonify(responses)
+
+        return custom_webhook
