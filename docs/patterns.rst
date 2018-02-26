@@ -15,6 +15,109 @@ Slots are for storing information that's relevant over multiple turns. For examp
 our restaurant example, we would want to keep track of things like the cuisine and number of 
 people for the duration of the conversation. 
 
+Running Rasa Core scripts
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Rasa Core ships with a collection of scripts that make developing bots easier.
+Here is an overview over the available scripts:
+
+.. option:: training
+
+   :Use For: Training a Rasa Core dialogue model.
+   :Example:
+      .. code-block:: bash
+
+        python -m rasa_core.train --stories stories.md --domain domain.yml --out models/dialogue
+
+   :Required Parameters:
+      - ``--stories`` story file
+      - ``--domain`` domain definition
+      - ``--out`` output path for the trained model
+      - help for additional parameters: ``python -m rasa_core.train --help``
+
+   :Description:
+      Reads in the stories from the provided file as well as the domain
+      domain definition. The model is trained with the default parameters
+      for the chosen policies. You can modify these parameters by passing
+      them to the train script (e.g. ``--epochs 30`` to specify how often
+      each training sample is used during training).
+
+
+.. option:: evaluation
+
+   :Use For: Evaluating a trained dialogue policy
+   :Example:
+      .. code-block:: bash
+
+        python -m rasa_core.evaluate --stories data/stories.md --core models/current/dialogue
+   :Parameters:
+      - ``--stories`` story file
+      - ``--core`` directory of trained dialogue model
+      - help for additional parameters: ``python -m rasa_core.evaluate --help``
+
+   :Description:
+      Reads the stories from the file and runs through them with the
+      trained model to compare the models predictions with the
+      true values provided by the story file. Prints an evaluation
+      when finished.
+
+
+.. option:: visualize
+
+   :Use For: Visualize the stories from a stories file
+   :Example:
+      .. code-block:: bash
+
+        python -m rasa_core.visualize --stories stories.md --domain domain.yml --out story_graph.png
+   :Parameters:
+      - ``--stories`` story file
+      - ``--domain`` domain definition
+      - ``--out`` output file to store the visualisation
+      - help for additional parameters: ``python -m rasa_core.visualize --help``
+
+   :Description:
+      Reads the stories from the file and visualizes them. The resulting
+      graph is a simplified version of all the conversational paths
+      in the passed training data.
+
+.. option:: run
+
+   :Use For: Start a bot for local testing or production
+   :Example:
+      .. code-block:: bash
+
+        python -m rasa_core.run --core models/dialogue --nlu models/nlu/current
+
+   :Parameters:
+      - ``--core`` directory of trained dialogue model
+      - ``--nlu`` directory of the trained Rasa NLU model
+      - ``--channel`` communication channel for the bot
+        (e.g. cmd or facebook)
+      - help for additional parameters: ``python -m rasa_core.run --help``
+
+   :Description:
+      Loads a trained model and runs it. Processes messages received from
+      the specified ``channel`` (commandline by default).
+
+
+.. option:: server
+
+   :Use For: Runs a trained model in server mode creating a HTTP endpoint.
+   :Example:
+      .. code-block:: bash
+
+        python -m rasa_core.server --core models/dialogue --nlu models/nlu/current
+
+   :Parameters:
+      - ``--core`` directory of trained dialogue model
+      - ``--nlu`` directory of the trained Rasa NLU model
+      - help for additional parameters: ``python -m rasa_core.evaluate --help``
+
+   :Description:
+      Loads a model and provides an HTTP REST endpoint for the
+      interaction with the bot. More details about the available
+      endpoints can be found in the section :ref:`section_http`.
+
 Collecting Information to Complete a Request
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -184,6 +287,7 @@ This second story details the flow when the restaurant is available. We will tel
 the restaurant and ask if any further help is required.
     
 .. code-block:: md
+
     # restaurant available
     * _make_booking{"people":"5", "date":"2018-08-22T19:30:00+00:00", "restaurant_id":"145"}
     - slot{"restaurant_availability": "available"}

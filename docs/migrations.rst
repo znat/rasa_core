@@ -5,6 +5,11 @@ Migration Guide
 This page contains information about changes between major versions and
 how you can migrate from one version to another.
 
+0.8.x to 0.9.0
+--------------
+- Parameter ``--output`` of the ``rasa_core.visualize`` script has been renamed
+  to ``--out`` for consistency reasons
+
 0.7.x to 0.8.0
 --------------
 

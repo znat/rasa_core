@@ -31,7 +31,7 @@ def create_argument_parser():
                         required=True,
                         type=str,
                         help="domain file")
-    parser.add_argument('-o', '--output',
+    parser.add_argument('-o', '--out',
                         required=True,
                         type=str,
                         help="filename of the output path, e.g. 'graph.png")
@@ -40,7 +40,7 @@ def create_argument_parser():
                         type=int,
                         help="max history to consider when merging "
                              "paths in the output graph")
-    parser.add_argument('-nlu', '--nlu_data',
+    parser.add_argument('--nlu_data',
                         default=None,
                         type=str,
                         help="path of the Rasa NLU training data, "

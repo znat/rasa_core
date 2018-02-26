@@ -12,10 +12,13 @@ This project adheres to `Semantic Versioning`_ starting with version 0.2.0.
 Added
 -----
 - parameter to specify NLU project when instantiating a ``RasaNLUInterpreter``
+- docs about scripts and parameters (part of ``Common Patterns``)
 
 Changed
 -------
 - updated dependency fbmessenger from 4.3.1 to 5.0.0
+- Parameter ``--output`` of the ``rasa_core.visualize`` script has been renamed
+  to ``--out``
 
 Removed
 -------
