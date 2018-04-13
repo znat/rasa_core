@@ -128,7 +128,7 @@ def collect_story_predictions(resource_name, policy_model_path, nlu_model_path,
 
     for tracker in tqdm(completed_trackers):
         sender_id = "default-" + uuid.uuid4().hex
-
+        story = {"predicted": [], "actual": [] }
         events = list(tracker.events)
         actions_between_utterances = []
         last_prediction = []
@@ -138,7 +138,8 @@ def collect_story_predictions(resource_name, policy_model_path, nlu_model_path,
                 p, a = align_lists(last_prediction, actions_between_utterances)
                 preds.extend(p)
                 actual.extend(a)
-
+                story["predicted"].extend(p)
+                story["actual"].extend(a)
                 actions_between_utterances = []
                 agent.handle_message(event.text, sender_id=sender_id)
                 tracker = agent.tracker_store.retrieve(sender_id)
@@ -158,16 +159,36 @@ def collect_story_predictions(resource_name, policy_model_path, nlu_model_path,
                              len(actions_between_utterances)
             actual.extend(["None"] * actual_padding)
 
-    return actual, preds
+        if story["predicted"] != story["actual"]:
+            failed_stories.append(story)
+
+    return actual, preds, failed_stories
+
+def log_failed_stories(failed_stories, failed_output):    
+    """Takes stories as a list of dicts"""
+
+    with io.open(failed_output, 'w') as f:
+        if len(failed_stories) == 0:
+            f.write("All stories passed")
+        else:
+            for i, story in enumerate(failed_stories):
+                f.write("## failed story {}\n\n".format(i))
+                for (p, a) in zip(story["predicted"], story["actual"]):
+                    if p == a:
+                        f.write("{:40}\n".format(p))
+                    else:
+                        f.write("{:40} predicted: {:40}\n".format())
 
 
 def run_story_evaluation(resource_name, policy_model_path, nlu_model_path,
-                         out_file, failed_stories, max_stories, do_plot):
+                         out_file, failed_output, max_stories, do_plot):
     """Run the evaluation of the stories, optionally plots the results."""
-    test_y, preds = collect_story_predictions(resource_name, policy_model_path,
+    test_y, preds, failed_stories = collect_story_predictions(resource_name, policy_model_path,
                                               nlu_model_path, max_stories)
     if do_plot:
         plot_story_evaluation(test_y, preds)
+
+    log_failed_stories(failed_stories, failed_output)
 
 
 def plot_story_evaluation(test_y, preds):
