@@ -53,6 +53,13 @@ def create_argument_parser():
             type=str,
             default="story_confmat.pdf",
             help="output path for the created evaluation plot")
+    parser.add_argument(
+            '-f', '--failed',
+            type=str,
+            default="failed_stories.txt",
+            help="output path for the failed stories")
+    parser.add_argument('--no-plot', dest='do_plot', action='store_false')
+
 
     utils.add_logging_option_arguments(parser)
     return parser
@@ -114,6 +121,8 @@ def collect_story_predictions(resource_name, policy_model_path, nlu_model_path,
                                tracker_limit=100)
     completed_trackers = g.generate()
 
+    failed_stories = []
+
     logger.info(
             "Evaluating {} stories\nProgress:".format(len(completed_trackers)))
 
@@ -153,13 +162,18 @@ def collect_story_predictions(resource_name, policy_model_path, nlu_model_path,
 
 
 def run_story_evaluation(resource_name, policy_model_path, nlu_model_path,
-                         out_file, max_stories):
-    """Run the evaluation of the stories, plots the results."""
-    from sklearn.metrics import confusion_matrix
-    from sklearn.utils.multiclass import unique_labels
-
+                         out_file, failed_stories, max_stories, do_plot):
+    """Run the evaluation of the stories, optionally plots the results."""
     test_y, preds = collect_story_predictions(resource_name, policy_model_path,
                                               nlu_model_path, max_stories)
+    if do_plot:
+        plot_story_evaluation(test_y, preds)
+
+
+def plot_story_evaluation(test_y, preds):
+    """Plot the results. of story evaluation"""
+    from sklearn.metrics import confusion_matrix
+    from sklearn.utils.multiclass import unique_labels
 
     log_evaluation_table(test_y, preds)
     cnf_matrix = confusion_matrix(test_y, preds)
@@ -181,5 +195,7 @@ if __name__ == '__main__':
                          cmdline_args.core,
                          cmdline_args.nlu,
                          cmdline_args.output,
-                         cmdline_args.max_stories)
+                         cmdline_args.failed,
+                         cmdline_args.max_stories,
+                         cmdline_args.do_plot)
     logger.info("Finished evaluation")
