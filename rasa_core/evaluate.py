@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import argparse
 import logging
 import uuid
+import io
 from difflib import SequenceMatcher
 
 from tqdm import tqdm
@@ -148,15 +149,19 @@ def collect_story_predictions(resource_name, policy_model_path, nlu_model_path,
                 actions_between_utterances.append(event.action_name)
 
         if last_prediction:
+
             preds.extend(last_prediction)
             preds_padding = len(actions_between_utterances) - \
                             len(last_prediction)
             preds.extend(["None"] * preds_padding)
+            story["predicted"].extend(["None"] * preds_padding)
 
             actual.extend(actions_between_utterances)
             actual_padding = len(last_prediction) - \
                              len(actions_between_utterances)
             actual.extend(["None"] * actual_padding)
+
+            story["actual"].extend(["None"] * actual_padding)
 
         if story["predicted"] != story["actual"]:
             failed_stories.append(story)
@@ -171,12 +176,12 @@ def log_failed_stories(failed_stories, failed_output):
             f.write("All stories passed")
         else:
             for i, story in enumerate(failed_stories):
-                f.write("## failed story {}\n\n".format(i))
+                f.write("\n## failed story {}\n".format(i))
                 for (p, a) in zip(story["predicted"], story["actual"]):
                     if p == a:
-                        f.write("{:40}\n".format(p))
+                        f.write("{:40}\n".format(a))
                     else:
-                        f.write("{:40} predicted: {:40}\n".format())
+                        f.write("{:40} predicted: {:40}\n".format(a, p))
 
 
 def run_story_evaluation(resource_name, policy_model_path, nlu_model_path,
