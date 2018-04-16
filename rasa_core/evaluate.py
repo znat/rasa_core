@@ -8,7 +8,6 @@ import logging
 import uuid
 from difflib import SequenceMatcher
 
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from typing import Text, List, Tuple
 
@@ -195,6 +194,7 @@ def plot_story_evaluation(test_y, preds):
     """Plot the results. of story evaluation"""
     from sklearn.metrics import confusion_matrix
     from sklearn.utils.multiclass import unique_labels
+    import matplotlib.pyplot as plt
 
     log_evaluation_table(test_y, preds)
     cnf_matrix = confusion_matrix(test_y, preds)
